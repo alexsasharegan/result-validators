@@ -29,18 +29,6 @@ export function asInt(x: any): Result<number, string> {
 
 /**
  * Given a string, returns `Ok(string)`
- * if that string is unicode normalized or `Err(string)`.
- */
-export function asNormalized(s: string): Result<string, string> {
-  if (!str_is_normalized(s)) {
-    return Err(`text is not unicode normalized: '${s}'`);
-  }
-
-  return Ok(s);
-}
-
-/**
- * Given a string, returns `Ok(string)`
  * if that string is URL safe or `Err(string)`.
  */
 export function asURLSafe(s: string): Result<string, string> {
@@ -73,26 +61,6 @@ export function asLowerCased(s: string): Result<string, string> {
   }
 
   return Ok(s);
-}
-
-/**
- * Given a list of top level domains (TLDs),
- * returns a function that takes a string
- * and returns `Ok(string)` if that string doesn't
- * end with one of the TLDs or `Err(string)`.
- */
-export function withoutTLDs(...tlds: string[]): Validator<string> {
-  return function asWithoutTLDs(s) {
-    let contains = tlds.some(
-      tld => s.includes(tld) && s.lastIndexOf(tld) === s.length - tld.length
-    );
-
-    if (contains) {
-      return Err(`contains an invalid top level domain: '${s}'`);
-    }
-
-    return Ok(s);
-  };
 }
 
 /**
@@ -201,10 +169,10 @@ export function withLength(len: number): Validator<string> {
  * Given a min/max length, returns a function that takes a string
  * and returns `Ok(string)` if that string length is between min/max or `Err(string)`.
  */
-export function withLengthBetweenRange(
+export function withLengthBetweenRange<T>(
   min: number,
   max: number
-): Validator<string> {
+): Validator<ArrayLike<T>> {
   return function asLengthBetweenRange(s) {
     if (s.length < min || s.length > max) {
       return Err(`the length must be between ${min}-${max}: found ${s.length}`);
@@ -218,7 +186,7 @@ export function withLengthBetweenRange(
  * Given a min length, returns a function that takes a string
  * and returns `Ok(string)` if that string is min length or `Err(string)`.
  */
-export function withMinLength(min: number): Validator<string> {
+export function withMinLength<T>(min: number): Validator<ArrayLike<T>> {
   return function asMinLength(s) {
     if (s.length < min) {
       return Err(`the length must be at least ${min}: found ${s.length}`);
@@ -232,7 +200,7 @@ export function withMinLength(min: number): Validator<string> {
  * Given a max length, returns a function that takes a string
  * and returns `Ok(string)` if that string is not greater than max or `Err(string)`.
  */
-export function withMaxLength(max: number): Validator<string> {
+export function withMaxLength<T>(max: number): Validator<ArrayLike<T>> {
   return function asMaxLength(s) {
     if (s.length > max) {
       return Err(`the length cannot exceed ${max}: found ${s.length}`);
@@ -324,90 +292,4 @@ export function oneOfSet<T>(
 
     return Ok(x);
   };
-}
-
-/**
- * Given a string, returns `Ok(string)`
- * if that string is a valid gender type or `Err(string)`
- */
-export function asGenderType(s: string): Result<string, string> {
-  return Ok(s).and_then(
-    oneOfSet(GENDER_TYPES._enum, `gender contains an invalid description: ${s}`)
-  );
-}
-
-/**
- * Given a plaintext password string, returns `Ok(string)`
- * if that password meets requirements or `Err(string)`
- */
-export function asPassword(plaintext: string): Result<string, string> {
-  return Ok(plaintext)
-    .and_then(asTrimmed)
-    .and_then(withMinLength(6))
-    .and_then(withMaxByteLength(72))
-    .and_then(asPrintableChars)
-    .map_err((err: string) => {
-      // Don't leak passwords on failed attempts
-      // the ':' denotes the start of showing the error data
-      if (err.includes(":")) {
-        return err.slice(0, err.indexOf(":"));
-      }
-
-      return err;
-    });
-}
-
-/**
- * Given any value, returns `Ok(string)`
- * if that string is a valid mongodb document id or `Err(string)`
- */
-export function asMongoIdStr(id: any): Result<string, string> {
-  return asString(id)
-    .and_then(asHexLowerCased)
-    .and_then(withLength(24));
-}
-
-/**
- * Given a username string, returns `Ok(string)`
- * if that string meets username requirements or `Err(string)`
- */
-export function asUserName(un: string): Result<string, string> {
-  return Ok(un)
-    .and_then(withLengthBetweenRange(3, 24))
-    .and_then(asURLSafe);
-}
-
-function asEmailResult(email: string): Result<string, string> {
-  if (!isEmail.validate(email)) {
-    return Err(`email address is not valid: '${email}'`);
-  }
-
-  return Ok(email);
-}
-
-/**
- * Given any value, returns `Ok(string)`
- * if that value meets requirements for an email address or `Err(string)`
- */
-export function asEmail(email: any): Result<string, string> {
-  // Ok of the TLD's taken from this RFC:
-  // https://tools.ietf.org/html/rfc2606
-  return asString(email)
-    .and_then(asNormalized)
-    .and_then(asTrimmed)
-    .and_then(asLowerCased)
-    .and_then(
-      withoutTLDs(".dev", ".test", ".example", ".localhost", ".invalid")
-    )
-    .and_then(asEmailResult);
-}
-
-export function asBirthdateStr(bday: string): Result<string, string> {
-  return Option.of(bday)
-    .filter(validateDateYYYYMMDD)
-    .match({
-      None: () =>
-        Err(`birthdate must be in the format 'YYYY-MM-DD': '${bday}'`),
-      Some: Ok,
-    });
 }
