@@ -1,5 +1,5 @@
 import { Option, Result, Ok, Err } from "safe-types";
-import { is_string, is_number, is_boolean } from "./typeof";
+import { is_string, is_number, is_boolean } from "./type-guards";
 
 /**
  * A `TypeNarrower` takes any value, and returns a result with the
