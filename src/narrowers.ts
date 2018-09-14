@@ -19,7 +19,7 @@ export const asString: TypeNarrower<string> = x =>
     });
 
 /**
- * A loose type refiner that **does not** check for `NaN` cases.
+ * A loose type narrower that **does not** check for `NaN` cases.
  */
 export const asAnyNumber: TypeNarrower<number> = x =>
   Option.of(x)
@@ -30,7 +30,7 @@ export const asAnyNumber: TypeNarrower<number> = x =>
     });
 
 /**
- * A strict type refiner that fails on `NaN` values.
+ * A strict type narrower that fails on `NaN` values.
  */
 export const asNumber: TypeNarrower<number> = x =>
   asAnyNumber(x).and_then(x => {

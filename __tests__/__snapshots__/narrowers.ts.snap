@@ -1,0 +1,117 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Narrowers should for arrays 1`] = `"value is not an Array"`;
+
+exports[`Narrowers should for arrays 2`] = `"value is not an Array"`;
+
+exports[`Narrowers should for arrays 3`] = `"value is not an Array"`;
+
+exports[`Narrowers should for arrays 4`] = `"value is not an Array"`;
+
+exports[`Narrowers should for arrays 5`] = `"value is not an Array"`;
+
+exports[`Narrowers should for arrays 6`] = `"value is not an Array"`;
+
+exports[`Narrowers should for arrays 7`] = `"value is not an Array"`;
+
+exports[`Narrowers should for booleans 1`] = `"value is not of type 'boolean'"`;
+
+exports[`Narrowers should for booleans 2`] = `"value is not of type 'boolean'"`;
+
+exports[`Narrowers should for booleans 3`] = `"value is not of type 'boolean'"`;
+
+exports[`Narrowers should for booleans 4`] = `"value is not of type 'boolean'"`;
+
+exports[`Narrowers should for booleans 5`] = `"value is not of type 'boolean'"`;
+
+exports[`Narrowers should for booleans 6`] = `"value is not of type 'boolean'"`;
+
+exports[`Narrowers should for booleans 7`] = `"value is not of type 'boolean'"`;
+
+exports[`Narrowers should for custom classes 1`] = `"value is not an instance of C"`;
+
+exports[`Narrowers should for custom classes 2`] = `"value is not an instance of B"`;
+
+exports[`Narrowers should for custom classes 3`] = `"value is not an instance of D"`;
+
+exports[`Narrowers should for custom classes 4`] = `"value is not an instance of A"`;
+
+exports[`Narrowers should for custom classes 5`] = `"value is not an instance of B"`;
+
+exports[`Narrowers should for custom classes 6`] = `"value is not an instance of A"`;
+
+exports[`Narrowers should for ints (strict) 1`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 2`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 3`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 4`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 5`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 6`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 7`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 8`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 9`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 10`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 11`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 12`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 13`] = `"value is not an integer"`;
+
+exports[`Narrowers should for ints (strict) 14`] = `"value is not an integer"`;
+
+exports[`Narrowers should for numbers (loose) 1`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (loose) 2`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (loose) 3`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (loose) 4`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (loose) 5`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (loose) 6`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (loose) 7`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (loose) 8`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (strict) 1`] = `"number is NaN"`;
+
+exports[`Narrowers should for numbers (strict) 2`] = `"number is NaN"`;
+
+exports[`Narrowers should for numbers (strict) 3`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (strict) 4`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (strict) 5`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (strict) 6`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (strict) 7`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (strict) 8`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (strict) 9`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for numbers (strict) 10`] = `"value is not of type 'number'"`;
+
+exports[`Narrowers should for strings 1`] = `"value is not of type 'string'"`;
+
+exports[`Narrowers should for strings 2`] = `"value is not of type 'string'"`;
+
+exports[`Narrowers should for strings 3`] = `"value is not of type 'string'"`;
+
+exports[`Narrowers should for strings 4`] = `"value is not of type 'string'"`;
+
+exports[`Narrowers should for strings 5`] = `"value is not of type 'string'"`;
+
+exports[`Narrowers should for strings 6`] = `"value is not of type 'string'"`;
