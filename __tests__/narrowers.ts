@@ -184,6 +184,7 @@ describe("Narrowers", async () => {
         { ctor: Object, subject: {} },
         { ctor: Object, subject: new D() },
         { ctor: Function, subject() {} },
+        { ctor: Object, subject() {} },
       ],
       fail: [
         { ctor: C, subject: new B() },

@@ -87,13 +87,3 @@ export const asInstanceOf: <C extends Function>(
       None: () => Err(`value is not an instance of ${ctor.name}`),
       Some: Ok,
     });
-
-/**
- * Narrow any type to an instance of `Date`.
- */
-export const asDate = asInstanceOf(Date);
-
-/**
- * Narrow any type to an instance of `Promise`.
- */
-export const asPromise = asInstanceOf(Promise);
