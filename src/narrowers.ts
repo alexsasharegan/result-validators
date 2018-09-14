@@ -1,0 +1,99 @@
+import { Option, Result, Ok, Err } from "safe-types";
+import { is_string, is_number, is_boolean } from "./typeof";
+
+/**
+ * A `TypeNarrower` takes any value, and returns a result with the
+ * type narrowed & asserted on success, or type error string on failure.
+ */
+export type TypeNarrower<T> = (x: any) => Result<T, string>;
+
+/**
+ * Narrow any type to a `string`.
+ */
+export const asString: TypeNarrower<string> = x =>
+  Option.of(x)
+    .filter(is_string)
+    .match({
+      None: () => Err(`value is not of type 'string'`),
+      Some: Ok,
+    });
+
+/**
+ * A loose type refiner that **does not** check for `NaN` cases.
+ */
+export const asAnyNumber: TypeNarrower<number> = x =>
+  Option.of(x)
+    .filter(is_number)
+    .match({
+      None: () => Err(`value is not of type 'number'`),
+      Some: Ok,
+    });
+
+/**
+ * A strict type refiner that fails on `NaN` values.
+ */
+export const asNumber: TypeNarrower<number> = x =>
+  asAnyNumber(x).and_then(x => {
+    if (Number.isNaN(x)) {
+      return Err(`number is NaN`);
+    }
+
+    return Ok(x);
+  });
+
+/**
+ * Narrow any type to a `boolean`.
+ */
+export const asBool: TypeNarrower<boolean> = x =>
+  Option.of(x)
+    .filter(is_boolean)
+    .match({
+      None: () => Err(`value is not of type 'boolean'`),
+      Some: Ok,
+    });
+
+/**
+ * Narrow any type to a `Array<any>`.
+ */
+export const asArray: TypeNarrower<any[]> = x =>
+  Option.of(x)
+    .filter(Array.isArray)
+    .match({
+      None: () => Err(`value is not an Array`),
+      Some: Ok,
+    });
+
+/**
+ * Narrow any type to a `number` that is an integer.
+ */
+export const asInt: TypeNarrower<number> = x =>
+  Option.of(x)
+    .filter(is_number)
+    .filter(Number.isInteger)
+    .match({
+      None: () => Err(`value is not an integer`),
+      Some: Ok,
+    });
+
+/**
+ * Narrow any type to an instance of a custom class/constructor.
+ */
+export const asInstanceOf: <C extends Function>(
+  ctor: C
+) => TypeNarrower<C> = ctor => x =>
+  Option.of(x)
+    .filter(x => x instanceof ctor)
+    .match({
+      None: () => Err(`value is not an instance of ${ctor.name}`),
+      Some: Ok,
+    });
+
+/**
+ * Narrow any type to an instance of `Date`.
+ */
+export const asDate = asInstanceOf(Date);
+
+/**
+ * Narrow any type to an instance of `Promise`.
+ */
+export const asPromise = asInstanceOf(Promise);
