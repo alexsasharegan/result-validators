@@ -1,73 +1,50 @@
-import { Option, Result, Ok, Err } from "safe-types";
-import { is_string, is_number } from "./typeof";
-
-export interface Validator<T> {
-  (x: T): Result<T, string>;
-}
+import { Result, Ok, Err } from "safe-types";
 
 /**
- * Given any type, returns `Ok(string)` or `Err(string)`.
+ * A validator is a function that accepts a value of a known type,
+ * and returns a result of the value if some conditions are met
+ * or a string error on failure.
  */
-export function asString(s: any): Result<string, string> {
-  return Option.of(s)
-    .filter(is_string)
-    .match({
-      None: () => Err(`value is not of type 'string'`),
-      Some: Ok,
-    });
-}
-
-export function asInt(x: any): Result<number, string> {
-  return Option.of(x)
-    .filter(is_number)
-    .filter(Number.isInteger)
-    .match({
-      None: () => Err(`value is not an integer`),
-      Some: Ok,
-    });
-}
+export type Validator<T> = (x: T) => Result<T, string>;
 
 /**
- * Given a string, returns `Ok(string)`
- * if that string is URL safe or `Err(string)`.
+ * Validates that a string contains no characters that require URL encoding.
  */
-export function asURLSafe(s: string): Result<string, string> {
+export const asURLSafe: Validator<string> = s => {
   if (encodeURIComponent(s) !== s) {
     return Err(`text contains invalid characters: '${s}'`);
   }
 
   return Ok(s);
-}
+};
 
 /**
- * Given a string, returns `Ok(string)`
- * if that string is trimmed or `Err(string)`.
+ * Validates that a string is trimmed of whitespace.
  */
-export function asTrimmed(s: string): Result<string, string> {
+export const asTrimmed: Validator<string> = s => {
   if (s.trim() !== s) {
     return Err(`text contains untrimmed whitespace: '${s}'`);
   }
 
   return Ok(s);
-}
+};
 
 /**
- * Given a string, returns `Ok(string)`
- * if that string is lowercase or `Err(string)`.
+ * Validates that a string is lower-cased.
  */
-export function asLowerCased(s: string): Result<string, string> {
+export const asLowerCased: Validator<string> = s => {
   if (s.toLowerCase() !== s) {
     return Err(`text is not lowercase: '${s}'`);
   }
 
   return Ok(s);
-}
+};
 
 /**
- * Given a string, returns `Ok(string)`
- * if that string only contains hex chars or `Err(string)`
+ * Validates that a string contains only hexadecimal characters.
+ * Case insensitive.
  */
-export function asHex(s: string): Result<string, string> {
+export const asHex: Validator<string> = s => {
   for (let i = 0, len = s.length, code: number; i < len; i++) {
     code = s.charCodeAt(i);
     // 0-9 are code points 48-57
@@ -83,213 +60,206 @@ export function asHex(s: string): Result<string, string> {
   }
 
   return Ok(s);
-}
+};
 
 /**
- * Given a string, returns `Ok(string)`
- * if that string contains only printable chars or `Err(string)`
+ * Validates that a string contains only hexadecimal characters.
+ * Case sensitive.
  */
-export function asPrintableChars(s: string): Result<string, string> {
+export const asHexLowerCased: Validator<string> = s => {
+  return asHex(s).and_then(asLowerCased);
+};
+
+/**
+ * Validates that a string contains no non-printable characters.
+ * Non-printable characters are those in ASCII range 0-31.
+ */
+export const asPrintableChars: Validator<string> = s => {
   // Non-printable chars are code points 0-31
   for (let i = 0, len = s.length; i < len; i++) {
-    if (s.charCodeAt(i) < 32) {
+    if (s.charCodeAt(i) <= 31) {
       return Err(`text contains non-printable characters: '${s}'`);
     }
   }
 
   return Ok(s);
-}
+};
 
 /**
- * Given a string, returns `Ok(string)`
- * if that string only contains lowercase hex chars or `Err(string)`
+ * Validates that a string contains only digit characters 0-9.
  */
-export function asHexLowerCased(s: string): Result<string, string> {
-  return asHex(s).and_then(asLowerCased);
-}
-
-/**
- * Given a string, returns `Ok(string)`
- * if that string only contains digits or `Err(string)`
- */
-export function asDigit(d: string): Result<string, string> {
-  for (let i = 0, len = d.length; i < len; i++) {
+export const asDigit: Validator<string> = s => {
+  for (let i = 0, len = s.length; i < len; i++) {
     // 0-9 are code points 48-57
-    if (d.charCodeAt(i) < 48 || d.charCodeAt(i) > 57) {
-      return Err(`text contains non-numeric characters: '${d}'`);
+    if (s.charCodeAt(i) < 48 || s.charCodeAt(i) > 57) {
+      return Err(`text contains non-numeric characters: '${s}'`);
     }
   }
 
-  return Ok(d);
-}
-
-export function withMax(max: number): Validator<number> {
-  return function asMax(x) {
-    if (x > max) {
-      return Err(`the value cannot exceed ${max}`);
-    }
-
-    return Ok(x);
-  };
-}
-
-export function withMin(min: number): Validator<number> {
-  return function asMin(x) {
-    if (x < min) {
-      return Err(`the value cannot be less than ${min}`);
-    }
-
-    return Ok(x);
-  };
-}
-
-export function betweenRange(min: number, max: number): Validator<number> {
-  return function asRange(x) {
-    return Ok(x)
-      .and_then(withMin(min))
-      .and_then(withMax(max));
-  };
-}
+  return Ok(s);
+};
 
 /**
- * Given a length, returns a function that takes a string
- * and returns `Ok(string)` if that string === length or `Err(string)`.
+ * Validates that a number is not greater than the maximum.
  */
-export function withLength(len: number): Validator<string> {
-  return function asLength(s) {
-    if (s.length !== len) {
-      return Err(`the length must be ${len}: found ${s.length}`);
-    }
+export const withMax: (max: number) => Validator<number> = max => x => {
+  if (x > max) {
+    return Err(`the value cannot exceed ${max}`);
+  }
 
-    return Ok(s);
-  };
-}
+  return Ok(x);
+};
 
 /**
- * Given a min/max length, returns a function that takes a string
- * and returns `Ok(string)` if that string length is between min/max or `Err(string)`.
+ * Validates that a number is not less than the minimum.
  */
-export function withLengthBetweenRange<T>(
+export const withMin: (min: number) => Validator<number> = min => x => {
+  if (x < min) {
+    return Err(`the value cannot be less than ${min}`);
+  }
+
+  return Ok(x);
+};
+
+/**
+ * Validates that a number is between the maximum and minimum (inclusive).
+ */
+export const betweenRange: (min: number, max: number) => Validator<number> = (
+  min,
+  max
+) => x =>
+  Ok(x)
+    .and_then(withMin(min))
+    .and_then(withMax(max));
+
+/**
+ * Validates that the length property is of a given size.
+ */
+export const withLength: <T>(
+  length: number
+) => Validator<ArrayLike<T>> = len => x => {
+  if (x.length !== len) {
+    return Err(`the length must be ${len}: found ${x.length}`);
+  }
+
+  return Ok(x);
+};
+
+/**
+ * Validates that the length property is not less than the minimum.
+ */
+export const withMinLength: <T>(
+  min: number
+) => Validator<ArrayLike<T>> = min => x => {
+  if (x.length < min) {
+    return Err(`the length must be at least ${min}: found ${x.length}`);
+  }
+
+  return Ok(x);
+};
+
+/**
+ * Validates that the length property is not greater than the maximum.
+ */
+export const withMaxLength: <T>(
+  max: number
+) => Validator<ArrayLike<T>> = max => x => {
+  if (x.length > max) {
+    return Err(`the length cannot exceed ${max}: found ${x.length}`);
+  }
+
+  return Ok(x);
+};
+
+/**
+ * Validates that the length property
+ * is between the maximum and minimum (inclusive).
+ */
+export const withLengthBetweenRange: <T>(
   min: number,
   max: number
-): Validator<ArrayLike<T>> {
-  return function asLengthBetweenRange(s) {
-    if (s.length < min || s.length > max) {
-      return Err(`the length must be between ${min}-${max}: found ${s.length}`);
-    }
+) => Validator<ArrayLike<T>> = (min, max) => x => {
+  if (x.length < min || x.length > max) {
+    return Err(`the length must be between ${min}-${max}: found ${x.length}`);
+  }
 
-    return Ok(s);
-  };
-}
+  return Ok(x);
+};
 
 /**
- * Given a min length, returns a function that takes a string
- * and returns `Ok(string)` if that string is min length or `Err(string)`.
+ * Validates that the byte length is of a given size.
  */
-export function withMinLength<T>(min: number): Validator<ArrayLike<T>> {
-  return function asMinLength(s) {
-    if (s.length < min) {
-      return Err(`the length must be at least ${min}: found ${s.length}`);
-    }
+export const withByteLength: (
+  length: number
+) => Validator<string> = len => s => {
+  let byteLength = Buffer.from(s, "utf8").byteLength;
 
-    return Ok(s);
-  };
-}
+  if (byteLength !== len) {
+    return Err(`the byte length must be ${len}: found ${byteLength}`);
+  }
+
+  return Ok(s);
+};
 
 /**
- * Given a max length, returns a function that takes a string
- * and returns `Ok(string)` if that string is not greater than max or `Err(string)`.
+ * Validates that the byte length is not less than the minimum.
  */
-export function withMaxLength<T>(max: number): Validator<ArrayLike<T>> {
-  return function asMaxLength(s) {
-    if (s.length > max) {
-      return Err(`the length cannot exceed ${max}: found ${s.length}`);
-    }
+export const withMinByteLength: (
+  min: number
+) => Validator<string> = min => s => {
+  let byteLength = Buffer.from(s, "utf8").byteLength;
 
-    return Ok(s);
-  };
-}
+  if (byteLength < min) {
+    return Err(`the byte length must be at least ${min}: found ${byteLength}`);
+  }
+
+  return Ok(s);
+};
 
 /**
- * Given a byte length, returns a function that takes a string
- * and returns `Ok(string)` if that string === length or `Err(string)`.
+ * Validates that the byte length is not greater than the maximum.
  */
-export function withByteLength(len: number): Validator<string> {
-  return function asByteLength(s) {
-    let byteLength = Buffer.from(s, "utf8").byteLength;
-    if (byteLength !== len) {
-      return Err(`the byte length must be ${len}: found ${byteLength}`);
-    }
+export const withMaxByteLength: (
+  max: number
+) => Validator<string> = max => s => {
+  let byteLength = Buffer.from(s, "utf8").byteLength;
 
-    return Ok(s);
-  };
-}
+  if (byteLength > max) {
+    return Err(`the byte length cannot exceed ${max}: found ${byteLength}`);
+  }
+
+  return Ok(s);
+};
 
 /**
- * Given a min/byte max length, returns a function that takes a string
- * and returns `Ok(string)` if that string length is between min/max or `Err(string)`.
+ * Validates that the byte length is between the maximum and minimum (inclusive).
  */
-export function withByteLengthBetweenRange(
+export const withByteLengthBetweenRange: (
   min: number,
   max: number
-): Validator<string> {
-  return function asByteLengthBetweenRange(s) {
-    let byteLength = Buffer.from(s, "utf8").byteLength;
-    if (byteLength < min || byteLength > max) {
-      return Err(
-        `the byte length must be between ${min}-${max}: found ${byteLength}`
-      );
-    }
+) => Validator<string> = (min, max) => s => {
+  // Implemented without composition to avoid allocating two buffers.
+  let byteLength = Buffer.from(s, "utf8").byteLength;
 
-    return Ok(s);
-  };
-}
+  if (byteLength < min || byteLength > max) {
+    return Err(
+      `the byte length must be between ${min}-${max}: found ${byteLength}`
+    );
+  }
 
-/**
- * Given a min byte length, returns a function that takes a string
- * and returns `Ok(string)` if that string is min length or `Err(string)`.
- */
-export function withMinByteLength(min: number): Validator<string> {
-  return function asMinByteLength(s) {
-    let byteLength = Buffer.from(s, "utf8").byteLength;
-    if (byteLength < min) {
-      return Err(
-        `the byte length must be at least ${min}: found ${byteLength}`
-      );
-    }
-
-    return Ok(s);
-  };
-}
+  return Ok(s);
+};
 
 /**
- * Given a max byte length, returns a function that takes a string
- * and returns `Ok(string)` if that string is not greater than max or `Err(string)`.
+ * Validates that an item is in a given Set.
  */
-export function withMaxByteLength(max: number): Validator<string> {
-  return function asMaxByteLength(s) {
-    let byteLength = Buffer.from(s, "utf8").byteLength;
-    if (byteLength > max) {
-      return Err(`the byte length cannot exceed ${max}: found ${byteLength}`);
-    }
+export const oneOfSet: <T>(set: Set<T>, msg?: string) => Validator<T> = (
+  set,
+  msg = `the given value is not one of the expected set of values`
+) => x => {
+  if (!set.has(x)) {
+    return Err(msg);
+  }
 
-    return Ok(s);
-  };
-}
-
-/**
- * Given a `Set<T>`, returns a function that takes a value `T`
- * and returns `Ok(T)` if the Set contains T or `Err(string)`.
- */
-export function oneOfSet<T>(
-  set: Set<T>,
-  msg: string = `the given value is not one of the expected set of values`
-): Validator<T> {
-  return function asOneOfSet(x) {
-    if (!set.has(x)) {
-      return Err(msg);
-    }
-
-    return Ok(x);
-  };
-}
+  return Ok(x);
+};
