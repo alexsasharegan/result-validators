@@ -5,3 +5,4 @@ esm
 node_modules
 tmp
 coverage
+docs
