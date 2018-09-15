@@ -2,8 +2,8 @@ import { Result, Ok, Err } from "safe-types";
 
 /**
  * A validator is a function that accepts a value of a known type,
- * and returns a result of the value if some conditions are met
- * or a string error on failure.
+ * and asserts conditions on that value returning an `Ok<T>` on success,
+ * or an `Err<string>` on failure.
  */
 export type Validator<T> = (x: T) => Result<T, string>;
 

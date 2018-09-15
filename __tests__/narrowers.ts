@@ -1,8 +1,8 @@
-import { Ok, Err } from "safe-types";
+import { Ok } from "safe-types";
 import * as N from "../src/narrowers";
 
 describe("Narrowers", async () => {
-  it("should for strings", async () => {
+  it("strings", async () => {
     let t = {
       success: ["a string", ""],
       fail: [1, false, {}, [], null, undefined],
@@ -19,7 +19,7 @@ describe("Narrowers", async () => {
     }
   });
 
-  it("should for booleans", async () => {
+  it("booleans", async () => {
     let t = {
       success: [true, false],
       fail: [1, "false", "true", {}, [], null, undefined],
@@ -36,7 +36,7 @@ describe("Narrowers", async () => {
     }
   });
 
-  it("should for numbers (loose)", async () => {
+  it("numbers (loose)", async () => {
     let t = {
       success: [
         0,
@@ -64,7 +64,7 @@ describe("Narrowers", async () => {
     }
   });
 
-  it("should for numbers (strict)", async () => {
+  it("numbers (strict)", async () => {
     let t = {
       success: [
         0,
@@ -90,7 +90,7 @@ describe("Narrowers", async () => {
     }
   });
 
-  it("should for ints (strict)", async () => {
+  it("ints (strict)", async () => {
     let t = {
       success: [
         0,
@@ -143,7 +143,7 @@ describe("Narrowers", async () => {
     }
   });
 
-  it("should for arrays", async () => {
+  it("arrays", async () => {
     let t = {
       success: [[], [1, 2, 3, 4, 5], [1, true, "string", {}, []]],
       fail: [
@@ -168,7 +168,7 @@ describe("Narrowers", async () => {
     }
   });
 
-  it("should for custom classes", async () => {
+  it("custom classes", async () => {
     class A {}
     class B extends A {}
     class C extends B {}

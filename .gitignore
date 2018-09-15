@@ -1,6 +1,7 @@
 .*
 !.gitignore
 lib
+esm
 node_modules
 tmp
 coverage

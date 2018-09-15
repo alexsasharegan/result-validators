@@ -1,13 +1,16 @@
 {
-  "name": "result-validators",
+  "name": "safe-types-combinators",
   "version": "1.0.0",
   "description": "result-validators",
   "main": "lib/validators.js",
+  "module": "lib/validators.js",
   "types": "lib/validators.d.js",
   "scripts": {
-    "prebuild": "rm -Rf lib",
+    "prebuild": "rm -Rf lib esm",
     "build:docs": "typedoc --options typedoc.js",
-    "build": "tsc && cp flow-typed/validators.js lib/validators.js.flow",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.json",
+    "build": "npm run build:cjs && npm run build:esm",
     "prepublishOnly": "npm run build",
     "prerelease": "npm run test:cov",
     "release": "standard-version",
@@ -21,7 +24,9 @@
   "author": "",
   "license": "MIT",
   "files": [
-    "lib"
+    "lib",
+    "esm",
+    "src"
   ],
   "jest": {
     "moduleFileExtensions": [
@@ -34,7 +39,7 @@
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(js|ts)$"
   },
   "dependencies": {
-    "safe-types": "^4.2.0"
+    "safe-types": "^4.3.0"
   },
   "devDependencies": {
     "@types/jest": "^23.3.2",

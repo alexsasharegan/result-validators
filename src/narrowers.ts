@@ -12,7 +12,7 @@ export type TypeNarrower<T> = (x: any) => Result<T, string>;
  */
 export const asString: TypeNarrower<string> = x =>
   Option.of(x)
-    .filter(is_string)
+    .narrow(is_string)
     .match({
       None: () => Err(`value is not of type 'string'`),
       Some: Ok,
@@ -23,7 +23,7 @@ export const asString: TypeNarrower<string> = x =>
  */
 export const asAnyNumber: TypeNarrower<number> = x =>
   Option.of(x)
-    .filter(is_number)
+    .narrow(is_number)
     .match({
       None: () => Err(`value is not of type 'number'`),
       Some: Ok,
@@ -46,7 +46,7 @@ export const asNumber: TypeNarrower<number> = x =>
  */
 export const asBool: TypeNarrower<boolean> = x =>
   Option.of(x)
-    .filter(is_boolean)
+    .narrow(is_boolean)
     .match({
       None: () => Err(`value is not of type 'boolean'`),
       Some: Ok,
@@ -57,7 +57,7 @@ export const asBool: TypeNarrower<boolean> = x =>
  */
 export const asArray: TypeNarrower<any[]> = x =>
   Option.of(x)
-    .filter(Array.isArray)
+    .narrow(Array.isArray)
     .match({
       None: () => Err(`value is not an Array`),
       Some: Ok,
@@ -68,7 +68,7 @@ export const asArray: TypeNarrower<any[]> = x =>
  */
 export const asInt: TypeNarrower<number> = x =>
   Option.of(x)
-    .filter(is_number)
+    .narrow(is_number)
     .filter(Number.isInteger)
     .match({
       None: () => Err(`value is not an integer`),
@@ -78,9 +78,9 @@ export const asInt: TypeNarrower<number> = x =>
 /**
  * Narrow any type to an instance of a custom class/constructor.
  */
-export const asInstanceOf: <C extends Function>(
+export const asInstanceOf: <C extends new (...args: any[]) => any>(
   ctor: C
-) => TypeNarrower<C> = ctor => x =>
+) => TypeNarrower<InstanceType<C>> = ctor => x =>
   Option.of(x)
     .filter(x => x instanceof ctor)
     .match({
